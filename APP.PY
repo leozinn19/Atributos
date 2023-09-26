@@ -20,22 +20,16 @@ custom_words = [
     ]
 stopwords = stopwords.words('portuguese') + custom_words
 vectorizer = TfidfVectorizer(stop_words=stopwords)
+
 def preprocess_text(text):
     text = unidecode(text)  # Remove acentos
+    text = re.sub(r'\b\w*\d\w*\b', '', text)  # Remove palavras com números
+    text = re.sub(r'\b\w{1,2}\b', '', text)  # Remove palavras com 1 ou 2 caracteres
     return text
 
 # Aplicar a função de pré-processamento à coluna 'nome_produto'
 df['nome_produto'] = df['nome_produto'].apply(preprocess_text)
 
-def remove_numbers_and_words_with_numbers(text):
-    return re.sub(r'\b\w*\d\w*\b', '', text)
-
-df['nome_produto'] = df['nome_produto'].apply(remove_numbers_and_words_with_numbers)
-
-def remove_short_words(text):
-    return re.sub(r'\b\w{1,2}\b', '', text)
-
-df['nome_produto'] = df['nome_produto'].apply(remove_short_words)
 
 df.dropna(subset=['atributo'], inplace=True)
 X = vectorizer.fit_transform(df['nome_produto'])
